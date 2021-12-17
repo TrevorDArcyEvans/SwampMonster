@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SwampMonster.Core", "SwampMonster.Core\SwampMonster.Core.csproj", "{3F089E5F-2632-45FC-912B-88D84D033CBA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSwamp", "EventSwamp\EventSwamp.csproj", "{197B7975-2A9E-4BD0-ADA0-B1B98655721E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSwamp.CLI", "EventSwamp.CLI\EventSwamp.CLI.csproj", "{8D22AF19-1011-411C-8BBA-771F2F799A60}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SwampMonster.CLI", "SwampMonster.CLI\SwampMonster.CLI.csproj", "{E1210B11-5E33-4962-98F7-869657A95400}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3F089E5F-2632-45FC-912B-88D84D033CBA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F089E5F-2632-45FC-912B-88D84D033CBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F089E5F-2632-45FC-912B-88D84D033CBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F089E5F-2632-45FC-912B-88D84D033CBA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{197B7975-2A9E-4BD0-ADA0-B1B98655721E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{197B7975-2A9E-4BD0-ADA0-B1B98655721E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{197B7975-2A9E-4BD0-ADA0-B1B98655721E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{197B7975-2A9E-4BD0-ADA0-B1B98655721E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D22AF19-1011-411C-8BBA-771F2F799A60}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D22AF19-1011-411C-8BBA-771F2F799A60}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D22AF19-1011-411C-8BBA-771F2F799A60}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D22AF19-1011-411C-8BBA-771F2F799A60}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E1210B11-5E33-4962-98F7-869657A95400}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1210B11-5E33-4962-98F7-869657A95400}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1210B11-5E33-4962-98F7-869657A95400}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1210B11-5E33-4962-98F7-869657A95400}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
