@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Build.Locator;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.FindSymbols;
 using Microsoft.CodeAnalysis.MSBuild;
 
 namespace SwampMonster.Core
@@ -39,6 +42,8 @@ namespace SwampMonster.Core
           Console.Error.WriteLine(args.Diagnostic.Message);
         }
       };
+
+      var allEvents = new List<ISymbol>();
       var solution = await workspace.OpenSolutionAsync(_solnPath);
       foreach (var project in solution.Projects)
       {
@@ -48,7 +53,24 @@ namespace SwampMonster.Core
         {
           var synTree = await doc.GetSyntaxTreeAsync();
           var model = compilation.GetSemanticModel(synTree);
+          var root = await synTree.GetRootAsync();
+          var classNodes = root.DescendantNodes().OfType<ClassDeclarationSyntax>();
+          foreach (var classNode in classNodes)
+          {
+            var symbol = (INamedTypeSymbol)model.GetDeclaredSymbol(classNode);
+            var events = symbol.GetMembers().OfType<IEventSymbol>();
+            allEvents.AddRange(events);
+            var fieldEvents = symbol.GetMembers().OfType<IFieldSymbol>().Where(ev => ev.Type.Name == "EventHandler");
+            allEvents.AddRange(fieldEvents);
+          }
         }
+      }
+
+      var refMap = new Dictionary<ISymbol, IEnumerable<ReferencedSymbol>>();
+      foreach (var thisEvent in allEvents)
+      {
+        var refsToEvents = await SymbolFinder.FindReferencesAsync(thisEvent, solution);
+        refMap.Add(thisEvent, refsToEvents);
       }
     }
   }
