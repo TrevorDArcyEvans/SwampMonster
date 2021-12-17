@@ -33,18 +33,29 @@ namespace SwampMonster.Core
 
     public async Task Analyse()
     {
-      var workspace = MSBuildWorkspace.Create();
-      workspace.SkipUnrecognizedProjects = true;
-      workspace.WorkspaceFailed += (sender, args) =>
-      {
-        if (args.Diagnostic.Kind == WorkspaceDiagnosticKind.Failure)
-        {
-          Console.Error.WriteLine(args.Diagnostic.Message);
-        }
-      };
+      var solution = await LoadSolution(_solnPath);
+      var allEvents = await GetAllEvents(solution);
+      var refMap = await GetAllEventReferences(allEvents, solution);
+    }
 
+    // [event] --> [locations]
+    // Note:  [locations] includes source+sink
+    //        sink includes subscribe+unsubscribe
+    private static async Task<Dictionary<ISymbol, IEnumerable<ReferencedSymbol>>> GetAllEventReferences(List<ISymbol> allEvents, Solution solution)
+    {
+      var refMap = new Dictionary<ISymbol, IEnumerable<ReferencedSymbol>>();
+      foreach (var thisEvent in allEvents)
+      {
+        var refsToEvents = await SymbolFinder.FindReferencesAsync(thisEvent, solution);
+        refMap.Add(thisEvent, refsToEvents);
+      }
+
+      return refMap;
+    }
+
+    private static async Task<List<ISymbol>> GetAllEvents(Solution solution)
+    {
       var allEvents = new List<ISymbol>();
-      var solution = await workspace.OpenSolutionAsync(_solnPath);
       foreach (var project in solution.Projects)
       {
         var compilation = await project.GetCompilationAsync();
@@ -66,12 +77,24 @@ namespace SwampMonster.Core
         }
       }
 
-      var refMap = new Dictionary<ISymbol, IEnumerable<ReferencedSymbol>>();
-      foreach (var thisEvent in allEvents)
+      return allEvents;
+    }
+
+    private static async Task<Solution> LoadSolution(string solnPath)
+    {
+      var workspace = MSBuildWorkspace.Create();
+      workspace.SkipUnrecognizedProjects = true;
+      workspace.WorkspaceFailed += (sender, args) =>
       {
-        var refsToEvents = await SymbolFinder.FindReferencesAsync(thisEvent, solution);
-        refMap.Add(thisEvent, refsToEvents);
-      }
+        if (args.Diagnostic.Kind == WorkspaceDiagnosticKind.Failure)
+        {
+          Console.Error.WriteLine(args.Diagnostic.Message);
+        }
+      };
+
+      var solution = await workspace.OpenSolutionAsync(solnPath);
+
+      return solution;
     }
   }
 }
