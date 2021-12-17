@@ -11,29 +11,21 @@
   using Microsoft.CodeAnalysis.FindSymbols;
   using Microsoft.CodeAnalysis.MSBuild;
 
-  public class Analyser
+  public static class Analyser
   {
-    private readonly string _solnPath;
-
-    public Analyser(string solnPath)
+    public static async Task<Dictionary<ISymbol, IEnumerable<ReferencedSymbol>>> Analyse(string solnPath)
     {
       if (!File.Exists(solnPath))
       {
         throw new FileNotFoundException($"Could not find {solnPath}");
       }
-
-      _solnPath = solnPath;
-
+      
       if (!MSBuildLocator.IsRegistered)
       {
         var instances = MSBuildLocator.QueryVisualStudioInstances().ToArray();
         MSBuildLocator.RegisterInstance(instances.OrderByDescending(x => x.Version).First());
       }
-    }
-
-    public async Task<Dictionary<ISymbol, IEnumerable<ReferencedSymbol>>> Analyse()
-    {
-      var solution = await LoadSolution(_solnPath);
+      var solution = await LoadSolution(solnPath);
       var allEvents = await GetAllEvents(solution);
       var refMap = await GetAllEventReferences(allEvents, solution);
 

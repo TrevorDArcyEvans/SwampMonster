@@ -10,8 +10,7 @@
     public static async Task Main(string[] args)
     {
       var solnPath = args[0];
-      var anal = new Analyser(solnPath);
-      var refMap = await anal.Analyse();
+      var refMap = await Analyser.Analyse(solnPath);
 
       Console.WriteLine($"{solnPath}");
       foreach (var evt in refMap.Keys)
