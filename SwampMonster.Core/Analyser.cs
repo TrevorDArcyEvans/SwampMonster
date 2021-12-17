@@ -1,16 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Build.Locator;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.FindSymbols;
-using Microsoft.CodeAnalysis.MSBuild;
-
-namespace SwampMonster.Core
+﻿namespace SwampMonster.Core
 {
+  using System;
+  using System.Collections.Generic;
+  using System.IO;
+  using System.Linq;
+  using System.Threading.Tasks;
+  using Microsoft.Build.Locator;
+  using Microsoft.CodeAnalysis;
+  using Microsoft.CodeAnalysis.CSharp.Syntax;
+  using Microsoft.CodeAnalysis.FindSymbols;
+  using Microsoft.CodeAnalysis.MSBuild;
+
   public class Analyser
   {
     private readonly string _solnPath;
@@ -31,11 +31,13 @@ namespace SwampMonster.Core
       }
     }
 
-    public async Task Analyse()
+    public async Task<Dictionary<ISymbol, IEnumerable<ReferencedSymbol>>> Analyse()
     {
       var solution = await LoadSolution(_solnPath);
       var allEvents = await GetAllEvents(solution);
       var refMap = await GetAllEventReferences(allEvents, solution);
+
+      return refMap;
     }
 
     // [event] --> [locations]
