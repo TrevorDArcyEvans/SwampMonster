@@ -19,6 +19,7 @@
       contact.OnAddressChanged += OnAddressChanged;
       contact.OnFirstNameChanged += OnFirstNameChanged;
       contact.OnLastNameChanged += OnLastNameChanged;
+      contact.Address.OnAddressChanged += OnAddressChanged;
 
       OnContactAdded?.Invoke(this, EventArgs.Empty);
     }
@@ -29,9 +30,15 @@
       contact.OnAddressChanged -= OnAddressChanged;
       contact.OnFirstNameChanged -= OnFirstNameChanged;
       contact.OnLastNameChanged -= OnLastNameChanged;
+      contact.Address.OnAddressChanged -= OnAddressChanged;
       _contacts.Remove(contact);
 
       OnContactRemoved?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void OnAddressChanged(object sender, EventArgs eventArgs)
+    {
+      Console.WriteLine($"New address   : ");
     }
 
     private void OnAddressChanged(object sender, Address address)
