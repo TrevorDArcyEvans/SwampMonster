@@ -1,4 +1,4 @@
-#region Copyright © 2001-2003 Jean-Claude Manoli [jc@manoli.net]
+#region Copyright ï¿½ 2001-2003 Jean-Claude Manoli [jc@manoli.net]
 /*
  * This software is provided 'as-is', without any express or implied warranty.
  * In no event will the author(s) be held liable for any damages arising from
@@ -45,7 +45,7 @@ checked class const continue decimal default delegate desc do double dynamic els
 enum event explicit extern false finally fixed float for foreach goto group 
 if implicit in int into interface internal is let lock long namespace new null
 object operator order out override partial params private protected public readonly
-ref return sbyte sealed select short sizeof stackalloc static string struct
+record ref return sbyte sealed select short sizeof stackalloc static string struct
 switch this throw true try typeof uint ulong unchecked unsafe ushort
 using value var virtual void volatile where while yield";
 			}
