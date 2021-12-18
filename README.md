@@ -30,6 +30,9 @@ This anti-pattern is called 'event soup' due to it's lack of structure and non-o
 just like a bowl of soup!  Here we also call it an 'event swamp' - just like a bowl of soup which has
 been left too long, gone rotten and contains monsters waiting to bite you!
 
+## Third Party Components
+* CSharpFormat from [CodePaste.NET](https://github.com/RickStrahl/CodePaste.NET.git)
+
 ## Further Information:
 * [Get started with semantic analysis](https://docs.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/get-started/semantic-analysis)
 * [Analysing a .NET Codebase with Roslyn](https://dev.to/mattjhosking/analysing-a-net-codebase-with-roslyn-5cn0)
