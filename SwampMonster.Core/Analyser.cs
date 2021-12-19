@@ -11,23 +11,40 @@
   using Microsoft.CodeAnalysis.FindSymbols;
   using Microsoft.CodeAnalysis.MSBuild;
 
-  public static class Analyser
+  public sealed class Analyser
   {
-    public static async Task<Dictionary<ISymbol, IEnumerable<ReferencedSymbol>>> Analyse(string solnPath)
+    private readonly string _solnFilePath;
+
+    public static async Task<Analyser> Create(string solnFilePath)
     {
-      if (!File.Exists(solnPath))
+      if (!File.Exists(solnFilePath))
       {
-        throw new FileNotFoundException($"Could not find {solnPath}");
+        throw new FileNotFoundException($"Could not find {solnFilePath}");
       }
-      
+
+      var retval = new Analyser(solnFilePath);
+      await retval.LoadSolution();
+
+      return retval;
+    }
+
+    private Analyser(string solnFilePath)
+    {
       if (!MSBuildLocator.IsRegistered)
       {
         var instances = MSBuildLocator.QueryVisualStudioInstances().ToArray();
         MSBuildLocator.RegisterInstance(instances.OrderByDescending(x => x.Version).First());
       }
-      var solution = await LoadSolution(solnPath);
-      var allEvents = await GetAllEvents(solution);
-      var refMap = await GetAllEventReferences(allEvents, solution);
+
+      _solnFilePath = solnFilePath;
+    }
+
+    public Solution Solution { get; private set; }
+
+    public async Task<Dictionary<ISymbol, IEnumerable<ReferencedSymbol>>> Analyse()
+    {
+      var allEvents = await GetAllEvents();
+      var refMap = await GetAllEventReferences(allEvents);
 
       return refMap;
     }
@@ -35,22 +52,22 @@
     // [event] --> [locations]
     // Note:  [locations] includes source+sink
     //        sink includes subscribe+unsubscribe
-    private static async Task<Dictionary<ISymbol, IEnumerable<ReferencedSymbol>>> GetAllEventReferences(List<ISymbol> allEvents, Solution solution)
+    private async Task<Dictionary<ISymbol, IEnumerable<ReferencedSymbol>>> GetAllEventReferences(List<ISymbol> allEvents)
     {
       var refMap = new Dictionary<ISymbol, IEnumerable<ReferencedSymbol>>();
       foreach (var thisEvent in allEvents)
       {
-        var refsToEvents = await SymbolFinder.FindReferencesAsync(thisEvent, solution);
+        var refsToEvents = await SymbolFinder.FindReferencesAsync(thisEvent, Solution);
         refMap.Add(thisEvent, refsToEvents);
       }
 
       return refMap;
     }
 
-    private static async Task<List<ISymbol>> GetAllEvents(Solution solution)
+    private async Task<List<ISymbol>> GetAllEvents()
     {
       var allEvents = new List<ISymbol>();
-      foreach (var project in solution.Projects)
+      foreach (var project in Solution.Projects)
       {
         var compilation = await project.GetCompilationAsync();
         var docs = project.Documents;
@@ -74,7 +91,7 @@
       return allEvents;
     }
 
-    private static async Task<Solution> LoadSolution(string solnPath)
+    private async Task LoadSolution()
     {
       var workspace = MSBuildWorkspace.Create();
       workspace.SkipUnrecognizedProjects = true;
@@ -86,9 +103,7 @@
         }
       };
 
-      var solution = await workspace.OpenSolutionAsync(solnPath);
-
-      return solution;
+      Solution = await workspace.OpenSolutionAsync(_solnFilePath);
     }
   }
 }
