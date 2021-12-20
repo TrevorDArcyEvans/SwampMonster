@@ -106,6 +106,7 @@ namespace SwampMonster.CLI
       var tempFilePath = Path.Combine(assyDir, "wwwroot", "csharp.html");
       var tempText = File.ReadAllText(tempFilePath);
       var temp = Template.Parse(tempText, tempFilePath);
+
       foreach (var csFilePath in docMap.Keys)
       {
         var srcFmt = (CSharpFormat)CodeFormatFactory.Create(SourceLanguages.CSharp);
@@ -131,15 +132,6 @@ namespace SwampMonster.CLI
         .SelectMany(proj => proj.Documents)
         .ToDictionary(doc => doc.FilePath, doc => Path.ChangeExtension(doc.Id.Id.ToString(), ".html"));
       return docMap;
-    }
-
-    private static void DumpSourceFiles(Analyser anal)
-    {
-      var docs = anal.Solution.Projects.SelectMany(proj => proj.Documents);
-      foreach (var doc in docs)
-      {
-        Console.WriteLine($"  {doc.FilePath}");
-      }
     }
 
     // [fully-qualified-event-name] --> [source-file-path]
