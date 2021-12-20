@@ -72,9 +72,7 @@ namespace SwampMonster.CLI
       Dictionary<string, string> evtSrcMap)
     {
       var events = refMap.Keys.Select(evt => $"{evt.ContainingNamespace}.{evt.ContainingSymbol.Name}.{evt.Name}");
-
       var eventFileMap = evtSrcMap.Keys.ToDictionary(evt => evt, evt => docMap[evtSrcMap[evt]]);
-      var eventFileMapStr = string.Join(',', eventFileMap);
 
       var exeAssy = Assembly.GetExecutingAssembly().Location;
       var assyDir = Path.GetDirectoryName(exeAssy);
