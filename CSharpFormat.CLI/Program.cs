@@ -1,5 +1,7 @@
 ﻿namespace CSharpFormat.CLI
 {
+  using System;
+  using System.IO;
   using Manoli.Utils.CSharpFormat;
 
   public static class Program
@@ -10,7 +12,7 @@
       var srcFmt = (Manoli.Utils.CSharpFormat.CSharpFormat)CodeFormatFactory.Create(SourceLanguages.CSharp);
       using var strm = File.Open(csFilePath, FileMode.Open);
       var htmlSrc = srcFmt.FormatCode(strm);
-      
+
       Console.WriteLine(csFilePath);
       Console.WriteLine();
       Console.WriteLine(htmlSrc);
