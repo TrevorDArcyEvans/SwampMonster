@@ -1,0 +1,28 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+  <title>Swamp Monster</title>
+  <link rel="stylesheet" href="autocomplete.css">
+</head>
+<body>
+
+<div>
+  <a href="index.html"><img src="Swamp_Monster.png"></a>
+  <div class="autocomplete" style="width:600px;">
+    <input id="SelectedEvent" type="text" placeholder="Event"/>
+  </div>
+  <button onclick="selectEventClickHandler()">Find</button>
+
+  <script>
+    function selectEventClickHandler()
+    {
+      var selEvt = document.getElementById("SelectedEvent").value;
+      window.location.href = 'csharp.html';
+    }
+  </script>
+  <script src="autocomplete.js"></script>
+</div>
+
+</body>
+</html>
+
