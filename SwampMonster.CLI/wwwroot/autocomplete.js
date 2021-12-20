@@ -164,7 +164,11 @@ var events = [
 /* initiate the autocomplete function on the "SelectedEvent" element, and pass along the countries array as possible autocomplete values */
 autocomplete(document.getElementById("SelectedEvent"), events);
 
-var eventFileMap = { {{event_file_map}} };
+var eventFileMap = { 
+  {{ for $kv in event_file_map}}
+  "{{$kv.key}}" : "{{$kv.value}}",
+  {{end}}
+};
 
 function selectEventClickHandler()
 {

@@ -73,7 +73,7 @@ namespace SwampMonster.CLI
     {
       var events = refMap.Keys.Select(evt => $"{evt.ContainingNamespace}.{evt.ContainingSymbol.Name}.{evt.Name}");
 
-      var eventFileMap = evtSrcMap.Keys.Select(evt => $"\"{evt}\" : \"{docMap[evtSrcMap[evt]]}\"");
+      var eventFileMap = evtSrcMap.Keys.ToDictionary(evt => evt, evt => docMap[evtSrcMap[evt]]);
       var eventFileMapStr = string.Join(',', eventFileMap);
 
       var exeAssy = Assembly.GetExecutingAssembly().Location;
@@ -85,7 +85,7 @@ namespace SwampMonster.CLI
         new
         {
           events,
-          event_file_map = eventFileMapStr
+          event_file_map = eventFileMap
         });
       var autocompleteFilePath = Path.Combine(optOutputDirectory, "autocomplete.js");
       File.WriteAllText(autocompleteFilePath, autocompleteText);
