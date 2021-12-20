@@ -29,11 +29,40 @@ namespace SwampMonster.CLI
       var docMap = GetDocumentMap(anal);
       var evtSrcMap = GetEventSourceFileMap(refMap);
 
+      Directory.CreateDirectory(opt.OutputDirectory);
+
       CopySupportFiles(opt.OutputDirectory);
       UpdateEvents(opt.OutputDirectory, refMap, docMap, evtSrcMap);
       GenerateSourceFiles(opt.OutputDirectory, docMap);
+      GenerateIndexFile(opt.OutputDirectory, anal.Solution.FilePath, docMap, evtSrcMap);
 
       DumpReferencesMap(opt.SolutionFilePath, refMap);
+    }
+
+    private static void GenerateIndexFile(
+      string optOutputDirectory,
+      string solnAbsFilePath,
+      Dictionary<string, string> docMap,
+      Dictionary<string, string> evtSrcMap)
+    {
+      var evtLinksMap = evtSrcMap.Keys.ToDictionary(evtName => evtName, evtName => docMap[evtSrcMap[evtName]]);
+      var solnDir = $"{Path.GetDirectoryName(solnAbsFilePath)}\\";
+      var unsortedSrcFilesMap = docMap.Keys.ToDictionary(docFilePath => docFilePath.Replace(solnDir, string.Empty), docFilePath => docMap[docFilePath]);
+      var srcFilesMap = new SortedDictionary<string, string>(unsortedSrcFilesMap);
+
+      var exeAssy = Assembly.GetExecutingAssembly().Location;
+      var assyDir = Path.GetDirectoryName(exeAssy);
+      var tempFilePath = Path.Combine(assyDir, "wwwroot", "index.html");
+      var tempText = File.ReadAllText(tempFilePath);
+      var temp = Template.Parse(tempText, tempFilePath);
+      var indexText = temp.Render(
+        new
+        {
+          events_links_map = evtLinksMap,
+          src_files_map = srcFilesMap
+        });
+      var indexFilePath = Path.Combine(optOutputDirectory, "index.html");
+      File.WriteAllText(indexFilePath, indexText);
     }
 
     private static void UpdateEvents(
@@ -47,7 +76,7 @@ namespace SwampMonster.CLI
 
       var eventFileMap = evtSrcMap.Keys.Select(evt => $"\"{evt}\" : \"{docMap[evtSrcMap[evt]]}\"");
       var eventFileMapStr = string.Join(',', eventFileMap);
-      
+
       var exeAssy = Assembly.GetExecutingAssembly().Location;
       var assyDir = Path.GetDirectoryName(exeAssy);
       var tempFilePath = Path.Combine(assyDir, "wwwroot", "autocomplete.js");
@@ -75,7 +104,6 @@ namespace SwampMonster.CLI
       string optOutputDirectory,
       Dictionary<string, string> docMap)
     {
-      Directory.CreateDirectory(optOutputDirectory);
       var exeAssy = Assembly.GetExecutingAssembly().Location;
       var assyDir = Path.GetDirectoryName(exeAssy);
       var tempFilePath = Path.Combine(assyDir, "wwwroot", "csharp.html");
@@ -91,8 +119,8 @@ namespace SwampMonster.CLI
           {
             file_name = Path.GetFileName(csFilePath),
             csharp_source_file = htmlSrc,
-            sinks_links = "aaa",    // TODO   sinks_links
-            sources_links = "bbb"   // TODO   sources_links
+            sinks_links = "aaa", // TODO   sinks_links
+            sources_links = "bbb" // TODO   sources_links
           });
         var docFilePath = Path.Combine(optOutputDirectory, docMap[csFilePath]);
         File.WriteAllText(docFilePath, docFileStr);
@@ -117,6 +145,7 @@ namespace SwampMonster.CLI
       }
     }
 
+    // [fully-qualified-event-name] --> [source-file-path]
     private static Dictionary<string, string> GetEventSourceFileMap(Dictionary<ISymbol, IEnumerable<ReferencedSymbol>> refMap)
     {
       var retval = new Dictionary<string, string>();
