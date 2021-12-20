@@ -166,5 +166,9 @@ function selectEventClickHandler()
 {
   var selEvt = document.getElementById("SelectedEvent").value;
   var evtFilePath = eventFileMap[selEvt];
+  if (evtFilePath === undefined)
+  {
+    return;
+  }
   window.location.href = evtFilePath;
 }
