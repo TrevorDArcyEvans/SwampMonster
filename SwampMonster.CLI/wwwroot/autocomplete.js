@@ -155,7 +155,11 @@ function autocomplete(inp, arr)
 }
 
 /* An array containing all the event names */
-var events = [{{events}}];
+var events = [
+  {{ for event in events}}
+  "{{event}}",
+  {{end}}
+];
 
 /* initiate the autocomplete function on the "SelectedEvent" element, and pass along the countries array as possible autocomplete values */
 autocomplete(document.getElementById("SelectedEvent"), events);

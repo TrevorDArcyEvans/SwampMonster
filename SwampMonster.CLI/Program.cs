@@ -71,8 +71,7 @@ namespace SwampMonster.CLI
       Dictionary<string, string> docMap,
       Dictionary<string, string> evtSrcMap)
     {
-      var events = refMap.Keys.Select(evt => $"\"{evt.ContainingNamespace}.{evt.ContainingSymbol.Name}.{evt.Name}\"");
-      var eventsStr = string.Join(',', events);
+      var events = refMap.Keys.Select(evt => $"{evt.ContainingNamespace}.{evt.ContainingSymbol.Name}.{evt.Name}");
 
       var eventFileMap = evtSrcMap.Keys.Select(evt => $"\"{evt}\" : \"{docMap[evtSrcMap[evt]]}\"");
       var eventFileMapStr = string.Join(',', eventFileMap);
@@ -85,7 +84,7 @@ namespace SwampMonster.CLI
       var autocompleteText = temp.Render(
         new
         {
-          events = eventsStr,
+          events,
           event_file_map = eventFileMapStr
         });
       var autocompleteFilePath = Path.Combine(optOutputDirectory, "autocomplete.js");
