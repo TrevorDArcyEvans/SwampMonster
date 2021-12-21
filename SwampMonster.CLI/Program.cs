@@ -242,6 +242,10 @@
           }
         }
       }
+      
+      Console.WriteLine("Key:");
+      Console.WriteLine("  [x] = sink   event");
+      Console.WriteLine("  [*] = source event");
     }
 
     private static string GetFullyQualifiedEventName(ISymbol evt) => $"{evt.ContainingNamespace}.{evt.ContainingSymbol.Name}.{evt.Name}";
