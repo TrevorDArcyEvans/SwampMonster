@@ -15,4 +15,9 @@ for (var i = 0; i < coll.length; i++)
       content.style.maxHeight = content.scrollHeight + "px";
     }
   });
+
+  // expand by default
+  var content = coll[i].nextElementSibling;
+  content.style.maxHeight = content.scrollHeight + "px";
+  coll[i].classList.toggle("active");
 }
