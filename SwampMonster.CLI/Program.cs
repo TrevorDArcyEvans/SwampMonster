@@ -1,18 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-using CommandLine;
-using Manoli.Utils.CSharpFormat;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.FindSymbols;
-using Scriban;
-using SwampMonster.Core;
-
-namespace SwampMonster.CLI
+﻿namespace SwampMonster.CLI
 {
+  using System;
+  using System.Collections.Generic;
+  using System.IO;
+  using System.Linq;
+  using System.Reflection;
+  using System.Threading.Tasks;
+  using CommandLine;
+  using Manoli.Utils.CSharpFormat;
+  using Microsoft.CodeAnalysis;
+  using Microsoft.CodeAnalysis.FindSymbols;
+  using Scriban;
+  using Core;
+
   public static class Program
   {
     public static async Task Main(string[] args)
