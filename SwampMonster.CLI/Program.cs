@@ -133,6 +133,7 @@ namespace SwampMonster.CLI
 
     // [fully-qualified-event-name] --> [Guid-file-path where event is received]
     private static IEnumerable<KeyValuePair<string, string>> GetSourceLinks(
+      string solnAbsFilePath,
       string csFilePath,
       IReadOnlyDictionary<ISymbol, IEnumerable<ReferencedSymbol>> refMap,
       IReadOnlyDictionary<string, string> docMap)
@@ -161,7 +162,7 @@ namespace SwampMonster.CLI
             }
 
             // event raised in src file but received in another file 
-            yield return new KeyValuePair<string, string>(GetFullyQualifiedEventName(evt), docMap[locFilePath]);
+            yield return new KeyValuePair<string, string>($"{GetFullyQualifiedEventName(evt)} --> {Path.GetRelativePath(solnAbsFilePath, locFilePath)}", docMap[locFilePath]);
           }
         }
       }
@@ -169,6 +170,7 @@ namespace SwampMonster.CLI
 
     // [fully-qualified-event-name] --> [Guid-file-path where event is generated]
     private static IEnumerable<KeyValuePair<string, string>> GetSinkLinks(
+      string solnAbsFilePath,
       string csFilePath,
       IReadOnlyDictionary<ISymbol, IEnumerable<ReferencedSymbol>> refMap,
       IReadOnlyDictionary<string, string> docMap)
@@ -192,7 +194,7 @@ namespace SwampMonster.CLI
               continue;
             }
 
-            yield return new KeyValuePair<string, string>(GetFullyQualifiedEventName(evt), docMap[evtFilePath]);
+            yield return new KeyValuePair<string, string>($"{GetFullyQualifiedEventName(evt)} --> {Path.GetRelativePath(solnAbsFilePath, evtFilePath)}", docMap[evtFilePath]);
           }
         }
       }
