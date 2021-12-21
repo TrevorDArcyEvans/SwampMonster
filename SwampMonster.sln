@@ -12,6 +12,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpFormat", "CSharpForma
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpFormat.CLI", "CSharpFormat.CLI\CSharpFormat.CLI.csproj", "{042304DB-A65D-47C3-8513-E2CBDD0D825A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrismTest", "PrismTest\PrismTest.csproj", "{06DF7C10-2E8F-4F97-97E2-7079FA1C30FC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,5 +44,9 @@ Global
 		{042304DB-A65D-47C3-8513-E2CBDD0D825A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{042304DB-A65D-47C3-8513-E2CBDD0D825A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{042304DB-A65D-47C3-8513-E2CBDD0D825A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{06DF7C10-2E8F-4F97-97E2-7079FA1C30FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06DF7C10-2E8F-4F97-97E2-7079FA1C30FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06DF7C10-2E8F-4F97-97E2-7079FA1C30FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06DF7C10-2E8F-4F97-97E2-7079FA1C30FC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
