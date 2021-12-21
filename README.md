@@ -77,6 +77,15 @@ $ ./SwampMonster.CLI.exe ../../../../EventSwamp.sln -o EventSwamp
 ```
 * open [main page](SwampMonster.CLI/bin/Debug/net5.0/EventSwamp/index.html)
 
+## Terminology
+### Sinks
+External events to which an object subscribes.  Typically, subscriptions are established in an object's constructor
+or when the object gains ownership of another object.
+
+### Sources
+Events which an object raises to one or more subscribers.  The object does not know how many subscribers there are.
+Further, the order in which subscribers receive the events is indeterminate.
+
 ## Third Party Components
 * CSharpFormat from [CodePaste.NET](https://github.com/RickStrahl/CodePaste.NET.git)
 
