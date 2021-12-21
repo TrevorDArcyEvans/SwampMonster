@@ -1,7 +1,35 @@
 # SwampMonster - making sense of the 'event swamp'
 ![Swamp Monster](docs/Swamp_Monster.png)
 
-## What is an 'event swamp' aka 'event soup'
+## Screenshots
+<details>
+<p/>
+
+  <details>
+    <summary>Main page</summary><p/>
+
+  ![Main page](docs/index.png)
+  </details>
+  <p/>
+
+  <details>
+    <summary>Source file</summary><p/>
+
+  ![Source file](docs/contact.png)
+  </details>
+   <p/>
+
+  <details>
+    <summary>Searching for an event</summary><p/>
+
+  ![Searching for an event](docs/events-find.png)
+  </details>
+  <p/>
+
+</details>
+
+## What is an 'event swamp' aka 'event soup'?
+<details>
 'Event soup' is an anti-pattern in which components communicate with each other via an event bus
 or similar messaging system.  As the system grows, the problem then becomes that interactions
 and dependencies are non-obvious.  Further, components which receive a message may then, in turn,
@@ -29,16 +57,41 @@ multiple times or in a sequence that is not apparent while just looking at one f
 This anti-pattern is called 'event soup' due to it's lack of structure and non-obvious interactions -
 just like a bowl of soup!  Here we also call it an 'event swamp' - just like a bowl of soup which has
 been left too long, gone rotten and contains monsters waiting to bite you!
+</details>
+
+## Prerequisites
+* .NET Core 5.0 or higher
+
+## Getting Started
+
+### Building
+```bash
+$ git clone https://github.com/TrevorDArcyEvans/SwampMonster.git
+$ cd SwampMonster
+$ dotnet build SwampMonster.sln
+```
+### Running
+```bash
+$ cd SwampMonster.CLI/bin/Debug/net5.0/
+$ ./SwampMonster.CLI.exe ../../../../EventSwamp.sln -o EventSwamp
+```
+* open [main page](SwampMonster.CLI/bin/Debug/net5.0/EventSwamp/index.html)
 
 ## Third Party Components
 * CSharpFormat from [CodePaste.NET](https://github.com/RickStrahl/CodePaste.NET.git)
 
 ## Further Information:
+<details>
+
 * [Get started with semantic analysis](https://docs.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/get-started/semantic-analysis)
 * [Analysing a .NET Codebase with Roslyn](https://dev.to/mattjhosking/analysing-a-net-codebase-with-roslyn-5cn0)
 * [roslyn-analysis](https://github.com/mattjhosking/roslyn-analysis.git)
 * [Getting started with Roslyn code analysis](https://blog.wiseowls.co.nz/index.php/2020/05/12/walking-code-with-roslyn/)
 
+</details>
+
 ## Further Work:
 * support WPF [`IEventAggregator`](https://prismlibrary.com/docs/event-aggregator.html)
-
+* highlight source code where event is sinked/sourced
+* generate a sink/source graph
+  * could be difficult to visualise for all but the most trivial cases 
