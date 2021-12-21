@@ -22,12 +22,20 @@
 
 <button type="button" class="collapsible">Sinks</button>
 <div class="content">
-  {{sinks_links}}
+  <ul>
+    {{ for $kp in sinks_links_map}}
+    <li><a href="{{$kp.value}}">{{$kp.key}}</a></li>
+    {{end}}
+  </ul>
 </div>
 
 <button type="button" class="collapsible">Sources</button>
 <div class="content">
-  {{sources_links}}
+  <ul>
+    {{ for $kp in sources_links_map}}
+    <li><a href="{{$kp.value}}">{{$kp.key}}</a></li>
+    {{end}}
+  </ul>
 </div>
 
 <button type="button" class="collapsible">Code - {{file_name}}</button>

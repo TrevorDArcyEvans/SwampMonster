@@ -33,7 +33,7 @@ namespace SwampMonster.CLI
 
       CopySupportFiles(opt.OutputDirectory);
       UpdateEvents(opt.OutputDirectory, refMap, docMap, evtSrcMap);
-      GenerateSourceFiles(opt.OutputDirectory, docMap);
+      GenerateSourceFiles(opt.OutputDirectory, anal.Solution.FilePath, refMap, docMap);
       GenerateIndexFile(opt.OutputDirectory, anal.Solution.FilePath, docMap, evtSrcMap);
 
       DumpReferencesMap(opt.SolutionFilePath, refMap);
@@ -42,8 +42,8 @@ namespace SwampMonster.CLI
     private static void GenerateIndexFile(
       string optOutputDirectory,
       string solnAbsFilePath,
-      Dictionary<string, string> docMap,
-      Dictionary<string, string> evtSrcMap)
+      IReadOnlyDictionary<string, string> docMap,
+      IReadOnlyDictionary<string, string> evtSrcMap)
     {
       var evtLinksMap = evtSrcMap.Keys.ToDictionary(evtName => evtName, evtName => docMap[evtSrcMap[evtName]]);
       var solnDir = $"{Path.GetDirectoryName(solnAbsFilePath)}\\";
@@ -67,9 +67,9 @@ namespace SwampMonster.CLI
 
     private static void UpdateEvents(
       string optOutputDirectory,
-      Dictionary<ISymbol, IEnumerable<ReferencedSymbol>> refMap,
-      Dictionary<string, string> docMap,
-      Dictionary<string, string> evtSrcMap)
+      IReadOnlyDictionary<ISymbol, IEnumerable<ReferencedSymbol>> refMap,
+      IReadOnlyDictionary<string, string> docMap,
+      IReadOnlyDictionary<string, string> evtSrcMap)
     {
       var events = refMap.Keys.Select(evt => $"{evt.ContainingNamespace}.{evt.ContainingSymbol.Name}.{evt.Name}");
       var eventFileMap = evtSrcMap.Keys.ToDictionary(evt => evt, evt => docMap[evtSrcMap[evt]]);
@@ -99,7 +99,9 @@ namespace SwampMonster.CLI
 
     private static void GenerateSourceFiles(
       string optOutputDirectory,
-      Dictionary<string, string> docMap)
+      string solnAbsFilePath,
+      IReadOnlyDictionary<ISymbol, IEnumerable<ReferencedSymbol>> refMap,
+      IReadOnlyDictionary<string, string> docMap)
     {
       var exeAssy = Assembly.GetExecutingAssembly().Location;
       var assyDir = Path.GetDirectoryName(exeAssy);
@@ -112,16 +114,91 @@ namespace SwampMonster.CLI
         var srcFmt = (CSharpFormat)CodeFormatFactory.Create(SourceLanguages.CSharp);
         using var strm = File.Open(csFilePath, FileMode.Open);
         var htmlSrc = srcFmt.FormatCode(strm);
+
+        var srcLinksMap = GetSourceLinks(csFilePath, refMap, docMap);
+        // .Select(refLoc => refLoc.Location.SourceTree.FilePath)
+        // .Select(filePath => new KeyValuePair<string, string>(filePath, docMap[filePath]));
+        var sinkLinksMap = GetSinkLinks(csFilePath, refMap, docMap);
+        // .Select(refLoc => refLoc.Location.SourceTree.FilePath)
+        // .Select(filePath => new KeyValuePair<string, string>(filePath, docMap[filePath]));
+
         var docFileStr = temp.Render(
           new
           {
             file_name = Path.GetFileName(csFilePath),
             csharp_source_file = htmlSrc,
-            sinks_links = "aaa", // TODO   sinks_links
-            sources_links = "bbb" // TODO   sources_links
+            sources_links_map = srcLinksMap,
+            sinks_links_map = sinkLinksMap
           });
         var docFilePath = Path.Combine(optOutputDirectory, docMap[csFilePath]);
         File.WriteAllText(docFilePath, docFileStr);
+      }
+    }
+
+    // [fully-qualified-event-name] --> [Guid-file-path where event is received]
+    private static IEnumerable<KeyValuePair<string, string>> GetSourceLinks(
+      string csFilePath,
+      IReadOnlyDictionary<ISymbol, IEnumerable<ReferencedSymbol>> refMap,
+      IReadOnlyDictionary<string, string> docMap)
+    {
+      foreach (var evt in refMap.Keys)
+      {
+        // only looking for events raised/received in src file
+        var evtLoc = evt.Locations.Single();
+        var evtFilePath = evtLoc.SourceTree.FilePath;
+        if (csFilePath != evtFilePath)
+        {
+          // event raised in another file, so skip
+          continue;
+        }
+
+        // we now have an event which is raised in src file
+        foreach (var refSym in refMap[evt])
+        {
+          foreach (var loc in refSym.Locations)
+          {
+            var locFilePath = loc.Location.SourceTree.FilePath;
+            if (csFilePath == locFilePath)
+            {
+              // event is received in src file, so skip
+              continue;
+            }
+
+            // event raised in src file but received in another file 
+            yield return new KeyValuePair<string, string>(GetFullyQualifiedEventName(evt), docMap[locFilePath]);
+          }
+        }
+      }
+    }
+
+    // [fully-qualified-event-name] --> [Guid-file-path where event is generated]
+    private static IEnumerable<KeyValuePair<string, string>> GetSinkLinks(
+      string csFilePath,
+      IReadOnlyDictionary<ISymbol, IEnumerable<ReferencedSymbol>> refMap,
+      IReadOnlyDictionary<string, string> docMap)
+    {
+      foreach (var evt in refMap.Keys)
+      {
+        var evtLoc = evt.Locations.Single();
+        var evtFilePath = evtLoc.SourceTree.FilePath;
+        if (csFilePath == evtFilePath)
+        {
+          continue;
+        }
+
+        foreach (var refSym in refMap[evt])
+        {
+          foreach (var loc in refSym.Locations)
+          {
+            var locFilePath = loc.Location.SourceTree.FilePath;
+            if (csFilePath != locFilePath)
+            {
+              continue;
+            }
+
+            yield return new KeyValuePair<string, string>(GetFullyQualifiedEventName(evt), docMap[evtFilePath]);
+          }
+        }
       }
     }
 
@@ -135,13 +212,13 @@ namespace SwampMonster.CLI
     }
 
     // [fully-qualified-event-name] --> [source-file-path]
-    private static Dictionary<string, string> GetEventSourceFileMap(Dictionary<ISymbol, IEnumerable<ReferencedSymbol>> refMap)
+    private static Dictionary<string, string> GetEventSourceFileMap(IReadOnlyDictionary<ISymbol, IEnumerable<ReferencedSymbol>> refMap)
     {
       var retval = new Dictionary<string, string>();
       foreach (var evt in refMap.Keys)
       {
         var evtLoc = evt.Locations.Single();
-        retval.Add($"{evt.ContainingNamespace}.{evt.ContainingSymbol.Name}.{evt.Name}", evtLoc.SourceTree.FilePath);
+        retval.Add($"{GetFullyQualifiedEventName(evt)}", evtLoc.SourceTree.FilePath);
       }
 
       return retval;
@@ -149,14 +226,14 @@ namespace SwampMonster.CLI
 
     private static void DumpReferencesMap(
       string solnFilePath,
-      Dictionary<ISymbol, IEnumerable<ReferencedSymbol>> refMap)
+      IReadOnlyDictionary<ISymbol, IEnumerable<ReferencedSymbol>> refMap)
     {
       Console.WriteLine($"{solnFilePath}");
       foreach (var evt in refMap.Keys)
       {
         var evtLoc = evt.Locations.Single();
         var evtFilePath = evtLoc.SourceTree.FilePath;
-        Console.WriteLine($"  {evt.ContainingNamespace}.{evt.ContainingSymbol.Name}.{evt.Name} --> {evtLoc.SourceTree.FilePath}[{evtLoc.SourceSpan.Start}..{evtLoc.SourceSpan.End}]");
+        Console.WriteLine($"  {GetFullyQualifiedEventName(evt)} --> {evtLoc.SourceTree.FilePath}[{evtLoc.SourceSpan.Start}..{evtLoc.SourceSpan.End}]");
         foreach (var refSym in refMap[evt])
         {
           foreach (var loc in refSym.Locations)
@@ -168,6 +245,8 @@ namespace SwampMonster.CLI
         }
       }
     }
+
+    private static string GetFullyQualifiedEventName(ISymbol evt) => $"{evt.ContainingNamespace}.{evt.ContainingSymbol.Name}.{evt.Name}";
 
     private static Task HandleParseError(IEnumerable<Error> errs)
     {
