@@ -115,12 +115,8 @@ namespace SwampMonster.CLI
         using var strm = File.Open(csFilePath, FileMode.Open);
         var htmlSrc = srcFmt.FormatCode(strm);
 
-        var srcLinksMap = GetSourceLinks(csFilePath, refMap, docMap);
-        // .Select(refLoc => refLoc.Location.SourceTree.FilePath)
-        // .Select(filePath => new KeyValuePair<string, string>(filePath, docMap[filePath]));
-        var sinkLinksMap = GetSinkLinks(csFilePath, refMap, docMap);
-        // .Select(refLoc => refLoc.Location.SourceTree.FilePath)
-        // .Select(filePath => new KeyValuePair<string, string>(filePath, docMap[filePath]));
+        var srcLinksMap = GetSourceLinks(solnAbsFilePath, csFilePath, refMap, docMap);
+        var sinkLinksMap = GetSinkLinks(solnAbsFilePath, csFilePath, refMap, docMap);
 
         var docFileStr = temp.Render(
           new
