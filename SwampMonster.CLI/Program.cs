@@ -24,7 +24,7 @@
 
     private static async Task Run(Options opt)
     {
-      var anal = await Analyser.Create(opt.SolutionFilePath);
+      var anal = await Analyser.Create(opt.SolutionFilePath, new ProgressBarProjectLoadStatus());
       var refMap = await anal.Analyse();
       var docMap = GetDocumentMap(anal);
       var evtSrcMap = GetEventSourceFileMap(refMap);

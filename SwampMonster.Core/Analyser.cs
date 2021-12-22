@@ -4,6 +4,7 @@
   using System.Collections.Generic;
   using System.IO;
   using System.Linq;
+  using System.Threading;
   using System.Threading.Tasks;
   using Microsoft.Build.Locator;
   using Microsoft.CodeAnalysis;
@@ -15,7 +16,10 @@
   {
     private readonly string _solnFilePath;
 
-    public static async Task<Analyser> Create(string solnFilePath)
+    public static async Task<Analyser> Create(
+      string solnFilePath,
+      IProgress<ProjectLoadProgress> progress = null,
+      CancellationToken cancellationToken = default)
     {
       if (!File.Exists(solnFilePath))
       {
@@ -23,7 +27,7 @@
       }
 
       var retval = new Analyser(solnFilePath);
-      await retval.LoadSolution();
+      await retval.LoadSolution(progress, cancellationToken);
 
       return retval;
     }
@@ -52,7 +56,7 @@
     // [event] --> [locations]
     // Note:  [locations] includes source+sink
     //        sink includes subscribe+unsubscribe
-    private async Task<Dictionary<ISymbol, IEnumerable<ReferencedSymbol>>> GetAllEventReferences(List<ISymbol> allEvents)
+    private async Task<Dictionary<ISymbol, IEnumerable<ReferencedSymbol>>> GetAllEventReferences(IEnumerable<ISymbol> allEvents)
     {
       var refMap = new Dictionary<ISymbol, IEnumerable<ReferencedSymbol>>();
       foreach (var thisEvent in allEvents)
@@ -64,7 +68,7 @@
       return refMap;
     }
 
-    private async Task<List<ISymbol>> GetAllEvents()
+    private async Task<IEnumerable<ISymbol>> GetAllEvents()
     {
       var allEvents = new List<ISymbol>();
       foreach (var project in Solution.Projects)
@@ -91,7 +95,9 @@
       return allEvents;
     }
 
-    private async Task LoadSolution()
+    private async Task LoadSolution(
+      IProgress<ProjectLoadProgress> progress = null,
+      CancellationToken cancellationToken = default)
     {
       var workspace = MSBuildWorkspace.Create();
       workspace.SkipUnrecognizedProjects = true;
@@ -103,7 +109,7 @@
         }
       };
 
-      Solution = await workspace.OpenSolutionAsync(_solnFilePath);
+      Solution = await workspace.OpenSolutionAsync(_solnFilePath, progress, cancellationToken);
     }
   }
 }
