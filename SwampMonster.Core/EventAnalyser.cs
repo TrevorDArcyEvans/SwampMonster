@@ -84,7 +84,7 @@ public sealed class EventAnalyser : AnalyserBase
       {
         foreach (var loc in refSym.Locations)
         {
-          var locFilePath = loc.Location.SourceTree.FilePath;
+          var locFilePath = loc.Location.SourceTree?.FilePath;
           if (csFilePath == locFilePath)
           {
             // event is received in src file, so skip
@@ -92,7 +92,7 @@ public sealed class EventAnalyser : AnalyserBase
           }
 
           // event raised in src file but received in another file 
-          yield return new KeyValuePair<string, string>($"{GetFullyQualifiedEventName(evt)} --> {Path.GetRelativePath(Solution.FilePath, locFilePath)}", docMap[locFilePath]);
+          yield return new KeyValuePair<string, string>($"{GetFullyQualifiedEventName(evt)} --> {Path.GetRelativePath(Solution.FilePath, locFilePath)}[{loc.Location.SourceSpan.Start}..{loc.Location.SourceSpan.End}]", docMap[locFilePath]);
         }
       }
     }
@@ -122,10 +122,7 @@ public sealed class EventAnalyser : AnalyserBase
             continue;
           }
 
-          yield return
-            evtFilePath is null
-              ? new KeyValuePair<string, string>($"{GetFullyQualifiedEventName(evt)}", string.Empty)
-              : new KeyValuePair<string, string>($"{GetFullyQualifiedEventName(evt)} --> {Path.GetRelativePath(Solution.FilePath, evtFilePath)}", docMap[evtFilePath]);
+          yield return new KeyValuePair<string, string>($"{GetFullyQualifiedEventName(evt)} --> {Path.GetRelativePath(Solution.FilePath, evtFilePath)}[{loc.Location.SourceSpan.Start}..{loc.Location.SourceSpan.End}]", docMap[evtFilePath]);
         }
       }
     }
@@ -137,7 +134,7 @@ public sealed class EventAnalyser : AnalyserBase
     var evtFilePath = evtLoc.SourceTree?.FilePath;
     var locFilePath = loc.Location.SourceTree?.FilePath;
     var isSource = evtFilePath == locFilePath;
-    
+
     return isSource;
   }
 }

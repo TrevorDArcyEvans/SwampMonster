@@ -106,7 +106,7 @@ public sealed class EventAggregatorAnalyser : AnalyserBase
             continue;
           }
 
-          yield return new KeyValuePair<string, string>($"{HttpUtility.HtmlEncode(GetFullyQualifiedEventName(evt))} --> {Path.GetRelativePath(Solution.FilePath, locFilePath)}", docMap[locFilePath]);
+          yield return new KeyValuePair<string, string>($"{HttpUtility.HtmlEncode(GetFullyQualifiedEventName(evt))} --> {Path.GetRelativePath(Solution.FilePath, locFilePath)}[{loc.Location.SourceSpan.Start}..{loc.Location.SourceSpan.End}]", docMap[locFilePath]);
         }
       }
     }
@@ -137,7 +137,7 @@ public sealed class EventAggregatorAnalyser : AnalyserBase
             continue;
           }
 
-          yield return new KeyValuePair<string, string>($"{HttpUtility.HtmlEncode(GetFullyQualifiedEventName(evt))} --> {Path.GetRelativePath(Solution.FilePath, locFilePath)}", string.Empty);
+          yield return new KeyValuePair<string, string>($"{HttpUtility.HtmlEncode(GetFullyQualifiedEventName(evt))} --> {Path.GetRelativePath(Solution.FilePath, locFilePath)}[{loc.Location.SourceSpan.Start}..{loc.Location.SourceSpan.End}]", string.Empty);
         }
       }
     }
