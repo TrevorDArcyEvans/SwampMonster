@@ -1,4 +1,6 @@
-﻿namespace SwampMonster.Core;
+﻿using System.IO;
+
+namespace SwampMonster.Core;
 
 using System;
 using System.Collections.Generic;
@@ -34,6 +36,15 @@ public abstract class AnalyserBase : IAnalyser
   }
 
   public Solution Solution { get; protected set; }
+
+  // [original-source-file-path] --> [Guid-file-path]
+  public Dictionary<string, string> GetDocumentMap()
+  {
+    var docMap = Solution.Projects
+      .SelectMany(proj => proj.Documents)
+      .ToDictionary(doc => doc.FilePath, doc => Path.ChangeExtension(doc.Id.Id.ToString(), ".html"));
+    return docMap;
+  }
 
   protected abstract Task<IEnumerable<ISymbol>> GetAllEvents();
   protected abstract Task<Dictionary<ISymbol, IEnumerable<ReferencedSymbol>>> GetAllEventReferences(IEnumerable<ISymbol> allEvents);

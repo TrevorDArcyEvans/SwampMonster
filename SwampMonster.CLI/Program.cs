@@ -26,7 +26,7 @@ public static class Program
   {
     var anal = await AnalyserFactory.CreateEventAnalyser(opt.SolutionFilePath, new ProgressBarProjectLoadStatus());
     var refMap = await anal.Analyse();
-    var docMap = GetDocumentMap(anal);
+    var docMap = anal.GetDocumentMap();
     var evtSrcMap = GetEventSourceFileMap(refMap);
 
     Directory.CreateDirectory(opt.OutputDirectory);
@@ -198,15 +198,6 @@ public static class Program
         }
       }
     }
-  }
-
-  // [original-source-file-path] --> [Guid-file-path]
-  private static Dictionary<string, string> GetDocumentMap(IAnalyser anal)
-  {
-    var docMap = anal.Solution.Projects
-      .SelectMany(proj => proj.Documents)
-      .ToDictionary(doc => doc.FilePath, doc => Path.ChangeExtension(doc.Id.Id.ToString(), ".html"));
-    return docMap;
   }
 
   // [fully-qualified-event-name] --> [source-file-path]

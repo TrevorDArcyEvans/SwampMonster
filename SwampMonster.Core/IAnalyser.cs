@@ -8,5 +8,6 @@ using Microsoft.CodeAnalysis.FindSymbols;
 public interface IAnalyser
 {
   Task<Dictionary<ISymbol, IEnumerable<ReferencedSymbol>>> Analyse();
-  public Solution Solution { get; }
+  Solution Solution { get; }
+  Dictionary<string, string> GetDocumentMap();
 }
