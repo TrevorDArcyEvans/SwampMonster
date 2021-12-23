@@ -60,7 +60,7 @@ been left too long, gone rotten and contains monsters waiting to bite you!
 </details>
 
 ## Prerequisites
-* .NET Core 5.0 or higher
+* .NET Core 6.0 or higher
 
 ## Getting Started
 
