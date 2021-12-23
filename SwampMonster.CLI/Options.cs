@@ -9,5 +9,8 @@ namespace SwampMonster.CLI
 
     [Option('o', "output", Required = true, HelpText = "Output directory")]
     public string OutputDirectory { get; set; }
+
+    [Option('a', "agg", Required = false, Default = false, HelpText = "Use EventAggregatorAnalyser")]
+    public bool UseEventAggregator { get; set; }
   }
 }

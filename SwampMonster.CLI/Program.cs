@@ -25,8 +25,9 @@ public static class Program
 
   private static async Task Run(Options opt)
   {
-    //var anal = await AnalyserFactory.CreateEventAnalyser(opt.SolutionFilePath, new ProgressBarProjectLoadStatus());
-    var anal = await AnalyserFactory.CreateEventAggregatorAnalyser(opt.SolutionFilePath, new ProgressBarProjectLoadStatus());
+    var anal = opt.UseEventAggregator
+      ? await AnalyserFactory.CreateEventAggregatorAnalyser(opt.SolutionFilePath, new ProgressBarProjectLoadStatus())
+      : await AnalyserFactory.CreateEventAnalyser(opt.SolutionFilePath, new ProgressBarProjectLoadStatus());
     var refMap = await anal.Analyse();
     var docMap = anal.GetDocumentMap();
     var evtSrcMap = anal.GetEventSourceFileMap(refMap);
