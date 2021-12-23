@@ -82,8 +82,8 @@ public sealed class EventAggregatorAnalyser : AnalyserBase
   public override string GetFullyQualifiedEventName(ISymbol evt) => evt.ToString();
 
   public override IEnumerable<KeyValuePair<string, string>> GetSourceLinks(
-    string csFilePath, 
-    IReadOnlyDictionary<ISymbol, IEnumerable<ReferencedSymbol>> refMap, 
+    string csFilePath,
+    IReadOnlyDictionary<ISymbol, IEnumerable<ReferencedSymbol>> refMap,
     IReadOnlyDictionary<string, string> docMap)
   {
     foreach (var evt in refMap.Keys)
@@ -113,8 +113,8 @@ public sealed class EventAggregatorAnalyser : AnalyserBase
   }
 
   public override IEnumerable<KeyValuePair<string, string>> GetSinkLinks(
-    string csFilePath, 
-    IReadOnlyDictionary<ISymbol, IEnumerable<ReferencedSymbol>> refMap, 
+    string csFilePath,
+    IReadOnlyDictionary<ISymbol, IEnumerable<ReferencedSymbol>> refMap,
     IReadOnlyDictionary<string, string> docMap)
   {
     foreach (var evt in refMap.Keys)
@@ -141,5 +141,13 @@ public sealed class EventAggregatorAnalyser : AnalyserBase
         }
       }
     }
+  }
+
+  public override bool IsSource(ISymbol evt, ReferenceLocation loc)
+  {
+    var origDef = ((IMethodSymbol)evt).OriginalDefinition.ToString();
+    var isSource = origDef is EventAggregatorSourceDefinition;
+
+    return isSource;
   }
 }

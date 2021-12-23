@@ -152,8 +152,7 @@ public static class Program
       {
         foreach (var loc in refSym.Locations)
         {
-          var locFilePath = loc.Location.SourceTree?.FilePath;
-          var srcSink = evtFilePath == locFilePath ? "*" : "X";
+          var srcSink = anal.IsSource(evt, loc) ? "*" : "X";
           Console.WriteLine($"    [{srcSink}] {loc.Location}");
         }
       }

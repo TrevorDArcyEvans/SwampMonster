@@ -130,4 +130,14 @@ public sealed class EventAnalyser : AnalyserBase
       }
     }
   }
+
+  public override bool IsSource(ISymbol evt, ReferenceLocation loc)
+  {
+    var evtLoc = evt.Locations.Single();
+    var evtFilePath = evtLoc.SourceTree?.FilePath;
+    var locFilePath = loc.Location.SourceTree?.FilePath;
+    var isSource = evtFilePath == locFilePath;
+    
+    return isSource;
+  }
 }

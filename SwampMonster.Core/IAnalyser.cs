@@ -27,4 +27,7 @@ public interface IAnalyser
     string csFilePath,
     IReadOnlyDictionary<ISymbol, IEnumerable<ReferencedSymbol>> refMap,
     IReadOnlyDictionary<string, string> docMap);
+
+  // true if location is a source of event
+  bool IsSource(ISymbol evt, ReferenceLocation loc);
 }

@@ -80,6 +80,7 @@ public abstract class AnalyserBase : IAnalyser
   public abstract string GetFullyQualifiedEventName(ISymbol evt);
   public abstract IEnumerable<KeyValuePair<string, string>> GetSourceLinks(string csFilePath, IReadOnlyDictionary<ISymbol, IEnumerable<ReferencedSymbol>> refMap, IReadOnlyDictionary<string, string> docMap);
   public abstract IEnumerable<KeyValuePair<string, string>> GetSinkLinks(string csFilePath, IReadOnlyDictionary<ISymbol, IEnumerable<ReferencedSymbol>> refMap, IReadOnlyDictionary<string, string> docMap);
+  public abstract bool IsSource(ISymbol evt, ReferenceLocation loc);
 
   // [event] --> [locations]
   // Note:  [locations] includes source+sink
