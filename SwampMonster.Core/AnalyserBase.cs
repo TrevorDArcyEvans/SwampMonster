@@ -46,6 +46,19 @@ public abstract class AnalyserBase : IAnalyser
     return docMap;
   }
 
+  // [fully-qualified-event-name] --> [source-file-path]
+  public Dictionary<string, string> GetEventSourceFileMap(IReadOnlyDictionary<ISymbol, IEnumerable<ReferencedSymbol>> refMap)
+  {
+    var retval = new Dictionary<string, string>();
+    foreach (var evt in refMap.Keys)
+    {
+      var evtLoc = evt.Locations.Single();
+      retval.Add($"{GetFullyQualifiedEventName(evt)}", evtLoc.SourceTree?.FilePath ?? string.Empty);
+    }
+
+    return retval;
+  }
+
   protected abstract Task<IEnumerable<ISymbol>> GetAllEvents();
   protected abstract Task<Dictionary<ISymbol, IEnumerable<ReferencedSymbol>>> GetAllEventReferences(IEnumerable<ISymbol> allEvents);
 
@@ -65,4 +78,8 @@ public abstract class AnalyserBase : IAnalyser
 
     Solution = await workspace.OpenSolutionAsync(_solnFilePath, progress, cancellationToken);
   }
+
+  public abstract string GetFullyQualifiedEventName(ISymbol evt);
+  public abstract IEnumerable<KeyValuePair<string, string>> GetSourceLinks(string csFilePath, IReadOnlyDictionary<ISymbol, IEnumerable<ReferencedSymbol>> refMap, IReadOnlyDictionary<string, string> docMap);
+  public abstract IEnumerable<KeyValuePair<string, string>> GetSinkLinks(string csFilePath, IReadOnlyDictionary<ISymbol, IEnumerable<ReferencedSymbol>> refMap, IReadOnlyDictionary<string, string> docMap);
 }

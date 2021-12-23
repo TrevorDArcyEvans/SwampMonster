@@ -24,19 +24,20 @@ public static class Program
 
   private static async Task Run(Options opt)
   {
-    var anal = await AnalyserFactory.CreateEventAnalyser(opt.SolutionFilePath, new ProgressBarProjectLoadStatus());
+    //var anal = await AnalyserFactory.CreateEventAnalyser(opt.SolutionFilePath, new ProgressBarProjectLoadStatus());
+    var anal = await AnalyserFactory.CreateEventAggregatorAnalyser(opt.SolutionFilePath, new ProgressBarProjectLoadStatus());
     var refMap = await anal.Analyse();
     var docMap = anal.GetDocumentMap();
-    var evtSrcMap = GetEventSourceFileMap(refMap);
+    var evtSrcMap = anal.GetEventSourceFileMap(refMap);
 
     Directory.CreateDirectory(opt.OutputDirectory);
 
     CopySupportFiles(opt.OutputDirectory);
     UpdateEvents(opt.OutputDirectory, refMap, docMap, evtSrcMap);
-    GenerateSourceFiles(opt.OutputDirectory, anal.Solution.FilePath, refMap, docMap);
+    GenerateSourceFiles(anal, opt.OutputDirectory, refMap, docMap);
     GenerateIndexFile(opt.OutputDirectory, anal.Solution.FilePath, docMap, evtSrcMap);
 
-    DumpReferencesMap(opt.SolutionFilePath, refMap);
+    DumpReferencesMap(anal, refMap);
   }
 
   private static void GenerateIndexFile(
@@ -45,7 +46,8 @@ public static class Program
     IReadOnlyDictionary<string, string> docMap,
     IReadOnlyDictionary<string, string> evtSrcMap)
   {
-    var evtLinksMap = evtSrcMap.Keys.ToDictionary(evtName => evtName, evtName => docMap[evtSrcMap[evtName]]);
+    var evtLinksMap = evtSrcMap.Keys
+      .ToDictionary(evt => evt, evt => docMap.ContainsKey(evtSrcMap[evt]) ? docMap[evtSrcMap[evt]] : string.Empty);
     var solnDir = $"{Path.GetDirectoryName(solnAbsFilePath)}\\";
     var unsortedSrcFilesMap = docMap.Keys.ToDictionary(docFilePath => docFilePath.Replace(solnDir, string.Empty), docFilePath => docMap[docFilePath]);
     var srcFilesMap = new SortedDictionary<string, string>(unsortedSrcFilesMap);
@@ -72,7 +74,8 @@ public static class Program
     IReadOnlyDictionary<string, string> evtSrcMap)
   {
     var events = refMap.Keys.Select(evt => $"{evt.ContainingNamespace}.{evt.ContainingSymbol.Name}.{evt.Name}");
-    var eventFileMap = evtSrcMap.Keys.ToDictionary(evt => evt, evt => docMap[evtSrcMap[evt]]);
+    var eventFileMap = evtSrcMap.Keys
+      .ToDictionary(evt => evt, evt => docMap.ContainsKey(evtSrcMap[evt]) ? docMap[evtSrcMap[evt]] : string.Empty);
 
     var exeAssy = Assembly.GetExecutingAssembly().Location;
     var assyDir = Path.GetDirectoryName(exeAssy);
@@ -98,8 +101,8 @@ public static class Program
   }
 
   private static void GenerateSourceFiles(
+    IAnalyser anal,
     string optOutputDirectory,
-    string solnAbsFilePath,
     IReadOnlyDictionary<ISymbol, IEnumerable<ReferencedSymbol>> refMap,
     IReadOnlyDictionary<string, string> docMap)
   {
@@ -115,8 +118,9 @@ public static class Program
       using var strm = File.Open(csFilePath, FileMode.Open);
       var htmlSrc = srcFmt.FormatCode(strm);
 
-      var srcLinksMap = GetSourceLinks(solnAbsFilePath, csFilePath, refMap, docMap);
-      var sinkLinksMap = GetSinkLinks(solnAbsFilePath, csFilePath, refMap, docMap);
+      var solnAbsFilePath = anal.Solution.FilePath;
+      var srcLinksMap = anal.GetSourceLinks(csFilePath, refMap, docMap);
+      var sinkLinksMap = anal.GetSinkLinks(csFilePath, refMap, docMap);
 
       var docFileStr = temp.Render(
         new
@@ -131,115 +135,31 @@ public static class Program
     }
   }
 
-  // [fully-qualified-event-name] --> [Guid-file-path where event is received]
-  private static IEnumerable<KeyValuePair<string, string>> GetSourceLinks(
-    string solnAbsFilePath,
-    string csFilePath,
-    IReadOnlyDictionary<ISymbol, IEnumerable<ReferencedSymbol>> refMap,
-    IReadOnlyDictionary<string, string> docMap)
-  {
-    foreach (var evt in refMap.Keys)
-    {
-      // only looking for events raised/received in src file
-      var evtLoc = evt.Locations.Single();
-      var evtFilePath = evtLoc.SourceTree.FilePath;
-      if (csFilePath != evtFilePath)
-      {
-        // event raised in another file, so skip
-        continue;
-      }
-
-      // we now have an event which is raised in src file
-      foreach (var refSym in refMap[evt])
-      {
-        foreach (var loc in refSym.Locations)
-        {
-          var locFilePath = loc.Location.SourceTree.FilePath;
-          if (csFilePath == locFilePath)
-          {
-            // event is received in src file, so skip
-            continue;
-          }
-
-          // event raised in src file but received in another file 
-          yield return new KeyValuePair<string, string>($"{GetFullyQualifiedEventName(evt)} --> {Path.GetRelativePath(solnAbsFilePath, locFilePath)}", docMap[locFilePath]);
-        }
-      }
-    }
-  }
-
-  // [fully-qualified-event-name] --> [Guid-file-path where event is generated]
-  private static IEnumerable<KeyValuePair<string, string>> GetSinkLinks(
-    string solnAbsFilePath,
-    string csFilePath,
-    IReadOnlyDictionary<ISymbol, IEnumerable<ReferencedSymbol>> refMap,
-    IReadOnlyDictionary<string, string> docMap)
-  {
-    foreach (var evt in refMap.Keys)
-    {
-      var evtLoc = evt.Locations.Single();
-      var evtFilePath = evtLoc.SourceTree.FilePath;
-      if (csFilePath == evtFilePath)
-      {
-        continue;
-      }
-
-      foreach (var refSym in refMap[evt])
-      {
-        foreach (var loc in refSym.Locations)
-        {
-          var locFilePath = loc.Location.SourceTree.FilePath;
-          if (csFilePath != locFilePath)
-          {
-            continue;
-          }
-
-          yield return new KeyValuePair<string, string>($"{GetFullyQualifiedEventName(evt)} --> {Path.GetRelativePath(solnAbsFilePath, evtFilePath)}", docMap[evtFilePath]);
-        }
-      }
-    }
-  }
-
-  // [fully-qualified-event-name] --> [source-file-path]
-  private static Dictionary<string, string> GetEventSourceFileMap(IReadOnlyDictionary<ISymbol, IEnumerable<ReferencedSymbol>> refMap)
-  {
-    var retval = new Dictionary<string, string>();
-    foreach (var evt in refMap.Keys)
-    {
-      var evtLoc = evt.Locations.Single();
-      retval.Add($"{GetFullyQualifiedEventName(evt)}", evtLoc.SourceTree.FilePath);
-    }
-
-    return retval;
-  }
-
   private static void DumpReferencesMap(
-    string solnFilePath,
+    IAnalyser anal,
     IReadOnlyDictionary<ISymbol, IEnumerable<ReferencedSymbol>> refMap)
   {
-    Console.WriteLine($"{solnFilePath}");
+    Console.WriteLine($"{anal.Solution.FilePath}");
     foreach (var evt in refMap.Keys)
     {
       var evtLoc = evt.Locations.Single();
-      var evtFilePath = evtLoc.SourceTree.FilePath;
-      Console.WriteLine($"  {GetFullyQualifiedEventName(evt)} --> {evtLoc.SourceTree.FilePath}[{evtLoc.SourceSpan.Start}..{evtLoc.SourceSpan.End}]");
+      var evtFilePath = evtLoc.SourceTree?.FilePath;
+      Console.WriteLine($"  {anal.GetFullyQualifiedEventName(evt)} --> {evtLoc.SourceTree?.FilePath ?? string.Empty}[{evtLoc.SourceSpan.Start}..{evtLoc.SourceSpan.End}]");
       foreach (var refSym in refMap[evt])
       {
         foreach (var loc in refSym.Locations)
         {
-          var locFilePath = loc.Location.SourceTree.FilePath;
+          var locFilePath = loc.Location.SourceTree?.FilePath;
           var srcSink = evtFilePath == locFilePath ? "*" : "X";
           Console.WriteLine($"    [{srcSink}] {loc.Location}");
         }
       }
     }
-      
+
     Console.WriteLine("Key:");
     Console.WriteLine("  [x] = sink   event");
     Console.WriteLine("  [*] = source event");
   }
-
-  private static string GetFullyQualifiedEventName(ISymbol evt) => $"{evt.ContainingNamespace}.{evt.ContainingSymbol.Name}.{evt.Name}";
 
   private static Task HandleParseError(IEnumerable<Error> errs)
   {

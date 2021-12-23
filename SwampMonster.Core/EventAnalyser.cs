@@ -75,4 +75,74 @@ public sealed class EventAnalyser : AnalyserBase
 
     return allEvents;
   }
+
+  public override string GetFullyQualifiedEventName(ISymbol evt) => $"{evt.ContainingNamespace}.{evt.ContainingSymbol.Name}.{evt.Name}";
+
+  public override IEnumerable<KeyValuePair<string, string>> GetSourceLinks(
+    string csFilePath,
+    IReadOnlyDictionary<ISymbol, IEnumerable<ReferencedSymbol>> refMap,
+    IReadOnlyDictionary<string, string> docMap)
+  {
+    foreach (var evt in refMap.Keys)
+    {
+      // only looking for events raised/received in src file
+      var evtLoc = evt.Locations.Single();
+      var evtFilePath = evtLoc.SourceTree?.FilePath;
+      if (csFilePath != evtFilePath)
+      {
+        // event raised in another file, so skip
+        continue;
+      }
+
+      // we now have an event which is raised in src file
+      foreach (var refSym in refMap[evt])
+      {
+        foreach (var loc in refSym.Locations)
+        {
+          var locFilePath = loc.Location.SourceTree.FilePath;
+          if (csFilePath == locFilePath)
+          {
+            // event is received in src file, so skip
+            continue;
+          }
+
+          // event raised in src file but received in another file 
+          yield return new KeyValuePair<string, string>($"{GetFullyQualifiedEventName(evt)} --> {Path.GetRelativePath(Solution.FilePath, locFilePath)}", docMap[locFilePath]);
+        }
+      }
+    }
+  }
+
+  public override IEnumerable<KeyValuePair<string, string>> GetSinkLinks(
+    string csFilePath,
+    IReadOnlyDictionary<ISymbol, IEnumerable<ReferencedSymbol>> refMap,
+    IReadOnlyDictionary<string, string> docMap)
+  {
+    foreach (var evt in refMap.Keys)
+    {
+      var evtLoc = evt.Locations.Single();
+      var evtFilePath = evtLoc.SourceTree?.FilePath;
+      if (csFilePath == evtFilePath)
+      {
+        continue;
+      }
+
+      foreach (var refSym in refMap[evt])
+      {
+        foreach (var loc in refSym.Locations)
+        {
+          var locFilePath = loc.Location.SourceTree?.FilePath;
+          if (csFilePath != locFilePath)
+          {
+            continue;
+          }
+
+          yield return
+            evtFilePath is null
+              ? new KeyValuePair<string, string>($"{GetFullyQualifiedEventName(evt)}", string.Empty)
+              : new KeyValuePair<string, string>($"{GetFullyQualifiedEventName(evt)} --> {Path.GetRelativePath(Solution.FilePath, evtFilePath)}", docMap[evtFilePath]);
+        }
+      }
+    }
+  }
 }
