@@ -1,6 +1,9 @@
 # SwampMonster - making sense of the 'event swamp'
 ![Swamp Monster](docs/Swamp_Monster.png)
 
+Use _Roslyn_ to analyse your solution to quickly trace events through your system 
+and see where events are raised and where they go. 
+
 ## Screenshots
 <details>
 <p/>
@@ -63,6 +66,7 @@ been left too long, gone rotten and contains monsters waiting to bite you!
 * .NET Core 6.0 or higher
 
 ## Getting Started
+<details>
 
 ### Building
 ```bash
@@ -77,7 +81,11 @@ $ ./SwampMonster.CLI.exe ../../../../EventSwamp.sln -o EventSwamp
 ```
 * open [main page](SwampMonster.CLI/bin/Debug/net5.0/EventSwamp/index.html)
 
+</details>
+
 ## Terminology
+<details>
+
 ### Sinks
 External events to which an object subscribes.  Typically, subscriptions are established in an object's constructor
 or when the object gains ownership of another object.
@@ -85,6 +93,8 @@ or when the object gains ownership of another object.
 ### Sources
 Events which an object raises to one or more subscribers.  The object does not know how many subscribers there are.
 Further, the order in which subscribers receive the events is indeterminate.
+
+</details>
 
 ## Notes
 * events on interfaces will be sourced/sinked on every object which implements the interface.
