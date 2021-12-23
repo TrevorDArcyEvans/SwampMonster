@@ -34,21 +34,6 @@ public sealed class EventAnalyser : AnalyserBase
   {
   }
 
-  // [event] --> [locations]
-  // Note:  [locations] includes source+sink
-  //        sink includes subscribe+unsubscribe
-  protected override async Task<Dictionary<ISymbol, IEnumerable<ReferencedSymbol>>> GetAllEventReferences(IEnumerable<ISymbol> allEvents)
-  {
-    var refMap = new Dictionary<ISymbol, IEnumerable<ReferencedSymbol>>();
-    foreach (var thisEvent in allEvents)
-    {
-      var refsToEvents = await SymbolFinder.FindReferencesAsync(thisEvent, Solution);
-      refMap.Add(thisEvent, refsToEvents);
-    }
-
-    return refMap;
-  }
-
   protected override async Task<IEnumerable<ISymbol>> GetAllEvents()
   {
     var allEvents = new List<ISymbol>();

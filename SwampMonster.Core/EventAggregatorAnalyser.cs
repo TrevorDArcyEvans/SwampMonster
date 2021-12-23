@@ -79,18 +79,6 @@ public sealed class EventAggregatorAnalyser : AnalyserBase
     return allEvents;
   }
 
-  protected override async Task<Dictionary<ISymbol, IEnumerable<ReferencedSymbol>>> GetAllEventReferences(IEnumerable<ISymbol> allEvents)
-  {
-    var refMap = new Dictionary<ISymbol, IEnumerable<ReferencedSymbol>>();
-    foreach (var methSym in allEvents)
-    {
-      var refsToEvents = await SymbolFinder.FindReferencesAsync(methSym, Solution);
-      refMap.Add(methSym, refsToEvents);
-    }
-
-    return refMap;
-  }
-
   public override string GetFullyQualifiedEventName(ISymbol evt) => evt.ToString();
 
   public override IEnumerable<KeyValuePair<string, string>> GetSourceLinks(

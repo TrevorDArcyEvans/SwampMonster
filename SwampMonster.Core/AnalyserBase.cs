@@ -1,9 +1,8 @@
-﻿using System.IO;
-
-namespace SwampMonster.Core;
+﻿namespace SwampMonster.Core;
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -60,7 +59,6 @@ public abstract class AnalyserBase : IAnalyser
   }
 
   protected abstract Task<IEnumerable<ISymbol>> GetAllEvents();
-  protected abstract Task<Dictionary<ISymbol, IEnumerable<ReferencedSymbol>>> GetAllEventReferences(IEnumerable<ISymbol> allEvents);
 
   protected async Task LoadSolution(
     IProgress<ProjectLoadProgress> progress = null,
@@ -82,4 +80,19 @@ public abstract class AnalyserBase : IAnalyser
   public abstract string GetFullyQualifiedEventName(ISymbol evt);
   public abstract IEnumerable<KeyValuePair<string, string>> GetSourceLinks(string csFilePath, IReadOnlyDictionary<ISymbol, IEnumerable<ReferencedSymbol>> refMap, IReadOnlyDictionary<string, string> docMap);
   public abstract IEnumerable<KeyValuePair<string, string>> GetSinkLinks(string csFilePath, IReadOnlyDictionary<ISymbol, IEnumerable<ReferencedSymbol>> refMap, IReadOnlyDictionary<string, string> docMap);
+
+  // [event] --> [locations]
+  // Note:  [locations] includes source+sink
+  //        sink includes subscribe+unsubscribe
+  private async Task<Dictionary<ISymbol, IEnumerable<ReferencedSymbol>>> GetAllEventReferences(IEnumerable<ISymbol> allEvents)
+  {
+    var refMap = new Dictionary<ISymbol, IEnumerable<ReferencedSymbol>>();
+    foreach (var thisEvent in allEvents)
+    {
+      var refsToEvents = await SymbolFinder.FindReferencesAsync(thisEvent, Solution);
+      refMap.Add(thisEvent, refsToEvents);
+    }
+
+    return refMap;
+  }
 }
