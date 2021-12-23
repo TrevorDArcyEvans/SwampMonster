@@ -12,11 +12,11 @@
   using Microsoft.CodeAnalysis.FindSymbols;
   using Microsoft.CodeAnalysis.MSBuild;
 
-  public sealed class Analyser
+  public sealed class EventAnalyser
   {
     private readonly string _solnFilePath;
 
-    public static async Task<Analyser> Create(
+    public static async Task<EventAnalyser> Create(
       string solnFilePath,
       IProgress<ProjectLoadProgress> progress = null,
       CancellationToken cancellationToken = default)
@@ -26,13 +26,13 @@
         throw new FileNotFoundException($"Could not find {solnFilePath}");
       }
 
-      var retval = new Analyser(solnFilePath);
+      var retval = new EventAnalyser(solnFilePath);
       await retval.LoadSolution(progress, cancellationToken);
 
       return retval;
     }
 
-    private Analyser(string solnFilePath)
+    private EventAnalyser(string solnFilePath)
     {
       if (!MSBuildLocator.IsRegistered)
       {
