@@ -36,20 +36,20 @@ public static class Program
     CopySupportFiles(opt.OutputDirectory);
     UpdateEvents(anal, opt.OutputDirectory, refMap, docMap, evtSrcMap);
     GenerateSourceFiles(anal, opt.OutputDirectory, refMap, docMap);
-    GenerateIndexFile(opt.OutputDirectory, anal.Solution.FilePath, docMap, evtSrcMap);
+    GenerateIndexFile(anal, opt.OutputDirectory, docMap, evtSrcMap);
 
     DumpReferencesMap(anal, refMap);
   }
 
   private static void GenerateIndexFile(
+    IAnalyser anal,
     string optOutputDirectory,
-    string solnAbsFilePath,
     IReadOnlyDictionary<string, string> docMap,
     IReadOnlyDictionary<string, string> evtSrcMap)
   {
     var evtLinksMap = evtSrcMap.Keys
       .ToDictionary(evt => HttpUtility.HtmlEncode(evt), evt => docMap.ContainsKey(evtSrcMap[evt]) ? docMap[evtSrcMap[evt]] : string.Empty);
-    var solnDir = $"{Path.GetDirectoryName(solnAbsFilePath)}\\";
+    var solnDir = $"{Path.GetDirectoryName(anal.Solution.FilePath)}\\";
     var unsortedSrcFilesMap = docMap.Keys.ToDictionary(docFilePath => docFilePath.Replace(solnDir, string.Empty), docFilePath => docMap[docFilePath]);
     var srcFilesMap = new SortedDictionary<string, string>(unsortedSrcFilesMap);
 
