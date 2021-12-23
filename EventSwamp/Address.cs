@@ -2,7 +2,7 @@
 {
   using System;
 
-  public sealed class Address
+  public sealed class Address : IHaveChanged
   {
     private string _streetAddress;
     private string _city;
@@ -19,6 +19,7 @@
     }
 
     public event EventHandler OnAddressChanged;
+    public event EventHandler OnChanged;
 
     public string StreetAddress
     {
@@ -33,6 +34,7 @@
 
         _streetAddress = value;
         OnAddressChanged?.Invoke(this, EventArgs.Empty);
+        OnChanged?.Invoke(this, EventArgs.Empty);
       }
     }
 
@@ -49,6 +51,7 @@
 
         _city = value;
         OnAddressChanged?.Invoke(this, EventArgs.Empty);
+        OnChanged?.Invoke(this, EventArgs.Empty);
       }
     }
 
@@ -65,6 +68,7 @@
 
         _country = value;
         OnAddressChanged?.Invoke(this, EventArgs.Empty);
+        OnChanged?.Invoke(this, EventArgs.Empty);
       }
     }
 

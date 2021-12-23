@@ -4,7 +4,7 @@
   using System.Collections.Generic;
   using System.Linq;
 
-  public sealed class ContactManager
+  public sealed class ContactManager : IHaveChanged
   {
     private readonly HashSet<Contact> _contacts = new();
 
@@ -12,6 +12,7 @@
 
     public EventHandler OnContactAdded;
     public EventHandler OnContactRemoved;
+    public event EventHandler OnChanged;
 
     public void Add(Contact contact)
     {
@@ -22,6 +23,7 @@
       contact.Address.OnAddressChanged += OnAddressChanged;
 
       OnContactAdded?.Invoke(this, EventArgs.Empty);
+      OnChanged?.Invoke(this, EventArgs.Empty);
     }
 
     public void Remove(int id)
@@ -34,6 +36,7 @@
       _contacts.Remove(contact);
 
       OnContactRemoved?.Invoke(this, EventArgs.Empty);
+      OnChanged?.Invoke(this, EventArgs.Empty);
     }
 
     private void OnAddressChanged(object sender, EventArgs eventArgs)

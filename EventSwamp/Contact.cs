@@ -2,7 +2,7 @@
 {
   using System;
 
-  public sealed class Contact
+  public sealed class Contact : IHaveChanged
   {
     private readonly int _id;
     private string _firstName;
@@ -12,6 +12,7 @@
     public event EventHandler<string> OnFirstNameChanged;
     public event EventHandler<string> OnLastNameChanged;
     public event EventHandler<Address> OnAddressChanged;
+    public event EventHandler OnChanged;
 
     public Contact(
       int id,
@@ -24,7 +25,11 @@
       _lastName = lastName;
       _address = address;
 
-      _address.OnAddressChanged += (s, e) => OnAddressChanged?.Invoke(this, Address);
+      _address.OnAddressChanged += (s, e) =>
+      {
+        OnAddressChanged?.Invoke(this, Address);
+        OnChanged?.Invoke(this, EventArgs.Empty);
+      };
     }
 
     public int Id => _id;
@@ -42,6 +47,7 @@
 
         _firstName = value;
         OnFirstNameChanged?.Invoke(this, FirstName);
+        OnChanged?.Invoke(this, EventArgs.Empty);
       }
     }
 
@@ -58,6 +64,7 @@
 
         _lastName = value;
         OnLastNameChanged?.Invoke(this, LastName);
+        OnChanged?.Invoke(this, EventArgs.Empty);
       }
     }
 

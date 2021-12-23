@@ -11,6 +11,7 @@
       var mgr = new ContactManager();
       mgr.OnContactAdded += (s, e) => Console.WriteLine("OnContactAdded");
       mgr.OnContactRemoved += (s, e) => Console.WriteLine("OnContactRemoved");
+      mgr.OnChanged += (s, e) => Console.WriteLine("OnChanged");
 
       // create
       for (var i = 0; i < 100; i++)
