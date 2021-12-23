@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.FindSymbols;
@@ -117,7 +118,7 @@ public sealed class EventAggregatorAnalyser : AnalyserBase
             continue;
           }
 
-          yield return new KeyValuePair<string, string>($"{GetFullyQualifiedEventName(evt)} --> {Path.GetRelativePath(Solution.FilePath, locFilePath)}", docMap[locFilePath]);
+          yield return new KeyValuePair<string, string>($"{HttpUtility.HtmlEncode(GetFullyQualifiedEventName(evt))} --> {Path.GetRelativePath(Solution.FilePath, locFilePath)}", docMap[locFilePath]);
         }
       }
     }
@@ -148,7 +149,7 @@ public sealed class EventAggregatorAnalyser : AnalyserBase
             continue;
           }
 
-          yield return new KeyValuePair<string, string>($"{GetFullyQualifiedEventName(evt)} --> {Path.GetRelativePath(Solution.FilePath, locFilePath)}", string.Empty);
+          yield return new KeyValuePair<string, string>($"{HttpUtility.HtmlEncode(GetFullyQualifiedEventName(evt))} --> {Path.GetRelativePath(Solution.FilePath, locFilePath)}", string.Empty);
         }
       }
     }

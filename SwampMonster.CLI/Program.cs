@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Web;
 using CommandLine;
 using Manoli.Utils.CSharpFormat;
 using Microsoft.CodeAnalysis;
@@ -33,7 +34,7 @@ public static class Program
     Directory.CreateDirectory(opt.OutputDirectory);
 
     CopySupportFiles(opt.OutputDirectory);
-    UpdateEvents(opt.OutputDirectory, refMap, docMap, evtSrcMap);
+    UpdateEvents(anal, opt.OutputDirectory, refMap, docMap, evtSrcMap);
     GenerateSourceFiles(anal, opt.OutputDirectory, refMap, docMap);
     GenerateIndexFile(opt.OutputDirectory, anal.Solution.FilePath, docMap, evtSrcMap);
 
@@ -47,7 +48,7 @@ public static class Program
     IReadOnlyDictionary<string, string> evtSrcMap)
   {
     var evtLinksMap = evtSrcMap.Keys
-      .ToDictionary(evt => evt, evt => docMap.ContainsKey(evtSrcMap[evt]) ? docMap[evtSrcMap[evt]] : string.Empty);
+      .ToDictionary(evt => HttpUtility.HtmlEncode(evt), evt => docMap.ContainsKey(evtSrcMap[evt]) ? docMap[evtSrcMap[evt]] : string.Empty);
     var solnDir = $"{Path.GetDirectoryName(solnAbsFilePath)}\\";
     var unsortedSrcFilesMap = docMap.Keys.ToDictionary(docFilePath => docFilePath.Replace(solnDir, string.Empty), docFilePath => docMap[docFilePath]);
     var srcFilesMap = new SortedDictionary<string, string>(unsortedSrcFilesMap);
@@ -68,12 +69,13 @@ public static class Program
   }
 
   private static void UpdateEvents(
+    IAnalyser anal,
     string optOutputDirectory,
     IReadOnlyDictionary<ISymbol, IEnumerable<ReferencedSymbol>> refMap,
     IReadOnlyDictionary<string, string> docMap,
     IReadOnlyDictionary<string, string> evtSrcMap)
   {
-    var events = refMap.Keys.Select(evt => $"{evt.ContainingNamespace}.{evt.ContainingSymbol.Name}.{evt.Name}");
+    var events = refMap.Keys.Select(evt => $"{HttpUtility.HtmlEncode(anal.GetFullyQualifiedEventName(evt))}");
     var eventFileMap = evtSrcMap.Keys
       .ToDictionary(evt => evt, evt => docMap.ContainsKey(evtSrcMap[evt]) ? docMap[evtSrcMap[evt]] : string.Empty);
 
