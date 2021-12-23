@@ -34,7 +34,7 @@ public abstract class AnalyserBase : IAnalyser
     return refMap;
   }
 
-  public Solution Solution { get; protected set; }
+  public Solution Solution { get; private set; }
 
   // [original-source-file-path] --> [Guid-file-path]
   public Dictionary<string, string> GetDocumentMap()
