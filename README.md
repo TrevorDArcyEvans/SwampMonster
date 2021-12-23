@@ -86,6 +86,10 @@ or when the object gains ownership of another object.
 Events which an object raises to one or more subscribers.  The object does not know how many subscribers there are.
 Further, the order in which subscribers receive the events is indeterminate.
 
+## Notes
+* events on interfaces will be sourced/sinked on every object which implements the interface.
+This is at least consistent with _Find usages_ functionality in _JetBrains Rider_.
+
 ## Third Party Components
 * CSharpFormat from [CodePaste.NET](https://github.com/RickStrahl/CodePaste.NET.git)
 
@@ -100,7 +104,7 @@ Further, the order in which subscribers receive the events is indeterminate.
 </details>
 
 ## Further Work:
-* support WPF [`IEventAggregator`](https://prismlibrary.com/docs/event-aggregator.html)
+* ~~support WPF [`IEventAggregator`](https://prismlibrary.com/docs/event-aggregator.html)~~
 * highlight source code where event is sinked/sourced
 * generate a sink/source graph
   * could be difficult to visualise for all but the most trivial cases 
