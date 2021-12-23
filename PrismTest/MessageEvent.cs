@@ -1,8 +1,7 @@
-namespace PrismTest
-{
-  using Prism.Events;
+namespace PrismTest;
 
-  public sealed class MessageEvent : PubSubEvent<Message>
-  {
-  }
+using Prism.Events;
+
+public sealed class MessageEvent : PubSubEvent<Message>
+{
 }

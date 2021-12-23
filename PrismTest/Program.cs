@@ -1,20 +1,19 @@
-﻿namespace PrismTest
+﻿namespace PrismTest;
+
+using Prism.Events;
+
+public static class Program
 {
-  using Prism.Events;
-
-  public static class Program
+  public static void Main(string[] args)
   {
-    public static void Main(string[] args)
+    var evtAgg = new EventAggregator();
+    using var modA = new ModuleA(evtAgg);
+    using var modB = new ModuleB(evtAgg);
+    var msg = new Message
     {
-      var evtAgg = new EventAggregator();
-      using var modA = new ModuleA(evtAgg);
-      using var modB = new ModuleB(evtAgg);
-      var msg = new Message
-      {
-        Text = "Test"
-      };
+      Text = "Test"
+    };
 
-      evtAgg.GetEvent<MessageEvent>().Publish(msg);
-    }
+    evtAgg.GetEvent<MessageEvent>().Publish(msg);
   }
 }

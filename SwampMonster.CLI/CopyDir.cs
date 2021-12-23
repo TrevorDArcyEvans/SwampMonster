@@ -1,39 +1,38 @@
-﻿namespace SwampMonster.CLI
+﻿namespace SwampMonster.CLI;
+
+using System;
+using System.IO;
+
+/// <summary>
+/// stolen from:
+///   https://docs.microsoft.com/en-us/dotnet/standard/io/how-to-copy-directories
+/// </summary>
+internal static class CopyDir
 {
-  using System;
-  using System.IO;
-
-  /// <summary>
-  /// stolen from:
-  ///   https://docs.microsoft.com/en-us/dotnet/standard/io/how-to-copy-directories
-  /// </summary>
-  internal static class CopyDir
+  public static void Copy(string sourceDirectory, string targetDirectory)
   {
-    public static void Copy(string sourceDirectory, string targetDirectory)
-    {
-      DirectoryInfo diSource = new DirectoryInfo(sourceDirectory);
-      DirectoryInfo diTarget = new DirectoryInfo(targetDirectory);
+    DirectoryInfo diSource = new DirectoryInfo(sourceDirectory);
+    DirectoryInfo diTarget = new DirectoryInfo(targetDirectory);
 
-      CopyAll(diSource, diTarget);
+    CopyAll(diSource, diTarget);
+  }
+
+  public static void CopyAll(DirectoryInfo source, DirectoryInfo target)
+  {
+    Directory.CreateDirectory(target.FullName);
+
+    // Copy each file into the new directory.
+    foreach (FileInfo fi in source.GetFiles())
+    {
+      Console.WriteLine(@"Copying {0}\{1}", target.FullName, fi.Name);
+      fi.CopyTo(Path.Combine(target.FullName, fi.Name), true);
     }
 
-    public static void CopyAll(DirectoryInfo source, DirectoryInfo target)
+    // Copy each subdirectory using recursion.
+    foreach (DirectoryInfo diSourceSubDir in source.GetDirectories())
     {
-      Directory.CreateDirectory(target.FullName);
-
-      // Copy each file into the new directory.
-      foreach (FileInfo fi in source.GetFiles())
-      {
-        Console.WriteLine(@"Copying {0}\{1}", target.FullName, fi.Name);
-        fi.CopyTo(Path.Combine(target.FullName, fi.Name), true);
-      }
-
-      // Copy each subdirectory using recursion.
-      foreach (DirectoryInfo diSourceSubDir in source.GetDirectories())
-      {
-        DirectoryInfo nextTargetSubDir = target.CreateSubdirectory(diSourceSubDir.Name);
-        CopyAll(diSourceSubDir, nextTargetSubDir);
-      }
+      DirectoryInfo nextTargetSubDir = target.CreateSubdirectory(diSourceSubDir.Name);
+      CopyAll(diSourceSubDir, nextTargetSubDir);
     }
   }
 }

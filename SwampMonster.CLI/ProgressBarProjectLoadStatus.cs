@@ -1,13 +1,12 @@
-namespace SwampMonster.CLI
-{
-  using System;
-  using Microsoft.CodeAnalysis.MSBuild;
+namespace SwampMonster.CLI;
 
-  public sealed class ProgressBarProjectLoadStatus : IProgress<ProjectLoadProgress>
+using System;
+using Microsoft.CodeAnalysis.MSBuild;
+
+public sealed class ProgressBarProjectLoadStatus : IProgress<ProjectLoadProgress>
+{
+  public void Report(ProjectLoadProgress value)
   {
-    public void Report(ProjectLoadProgress value)
-    {
-      Console.Out.WriteLine($"{value.Operation} {value.FilePath}");
-    }
+    Console.Out.WriteLine($"{value.Operation} {value.FilePath}");
   }
 }
