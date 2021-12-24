@@ -95,7 +95,7 @@ External events to which an object subscribes.  Typically, subscriptions are est
 or when the object gains ownership of another object.
 
 ### Sources
-Events which an object raises to one or more subscribers.  The object does not know how many subscribers there are.
+Events which an object raises to zero or more subscribers.  The object does not know how many subscribers there are.
 Further, the order in which subscribers receive the events is indeterminate.
 
 </details>
@@ -129,12 +129,12 @@ We are now at the class (_ModelView.cs_) where the event is defined (and raised)
 of information:
 
 ### Sinks
-These are all events which are coming into the class ie all events the class is _sinking_.
-Each event has an indication as to the origin (class + file location) and clicking on accident
+_Sinks_ are all events which are coming into the class ie all events the class is _sinking_.
+Each event has an indication as to the origin (class + file location) and clicking on a
 link will go to this class.
 
 ### Sources
-These are events which are raised by this class ie all events the class is _sourcing_.
+_Sources_ are events which are raised by (or going out of) this class ie all events the class is _sourcing_.
 Each event has an indication of the file location.
 
 ### Code
