@@ -60,6 +60,10 @@ multiple times or in a sequence that is not apparent while just looking at one f
 This anti-pattern is called 'event soup' due to it's lack of structure and non-obvious interactions -
 just like a bowl of soup!  Here we also call it an 'event swamp' - just like a bowl of soup which has
 been left too long, gone rotten and contains monsters waiting to bite you!
+
+* [EventAggregator - antipattern](https://sudonull.com/post/73091-EventAggregator-antipattern)
+* [MVVM: When EventAggregator (aka MessageBus) is an Anti-Pattern](https://www.engineerspock.com/2016/06/28/mvvm-when-eventaggregator-aka-messagebus-is-an-anti-pattern/)
+
 </details>
 
 ## Prerequisites
