@@ -34,7 +34,7 @@ public sealed class EventAnalyser : AnalyserBase
   {
   }
 
-  protected override async Task<IEnumerable<ISymbol>> GetAllEvents()
+  protected override async Task<HashSet<ISymbol>> GetAllEvents()
   {
     var allEvents = new List<ISymbol>();
     foreach (var project in Solution.Projects)
@@ -58,7 +58,7 @@ public sealed class EventAnalyser : AnalyserBase
       }
     }
 
-    return allEvents;
+    return allEvents.Distinct().ToHashSet();
   }
 
   public override string GetFullyQualifiedEventName(ISymbol evt) => $"{evt.ContainingNamespace}.{evt.ContainingSymbol.Name}.{evt.Name}";

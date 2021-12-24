@@ -58,7 +58,7 @@ public abstract class AnalyserBase : IAnalyser
     return retval;
   }
 
-  protected abstract Task<IEnumerable<ISymbol>> GetAllEvents();
+  protected abstract Task<HashSet<ISymbol>> GetAllEvents();
 
   protected async Task LoadSolution(
     IProgress<ProjectLoadProgress> progress = null,
